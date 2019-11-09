@@ -273,8 +273,10 @@ function handleKeyDown(event) {
 
 // set up the webGL environment
 function setupWebGL() {
+    // Set up keys
+    document.onkeydown = handleKeyDown; // call this when key pressed
     
-     // Get the image canvas, render an image in it
+    // Get the image canvas, render an image in it
      var imageCanvas = document.getElementById("myImageCanvas"); // create a 2d canvas
       var cw = imageCanvas.width, ch = imageCanvas.height; 
       imageContext = imageCanvas.getContext("2d"); 
