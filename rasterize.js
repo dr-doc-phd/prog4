@@ -361,6 +361,7 @@ function setupWebGL() {
          gl.clearDepth(1.0); // use max when we clear the depth buffer
          gl.enable(gl.DEPTH_TEST); // use hidden surface removal (with zbuffering)
          
+         
        }
      } // end try
      
@@ -553,7 +554,10 @@ function setupShaders() {
             
             // combine to output color
             vec3 colorOut = ambient + diffuse + specular; // no specular yet
-            gl_FragColor = vec4(colorOut, uTrans)*texture2D(uSampler, v_texcoord);
+            if(Blinn_Phong)
+                gl_FragColor = vec4(colorOut, uTrans)*texture2D(uSampler, v_texcoord);
+            else
+                gl_FragColor = texture2D(uSampler, v_texcoord);
         }
     `;
     
@@ -615,6 +619,8 @@ function setupShaders() {
                 gl.uniform3fv(lightDiffuseULoc,lightDiffuse); // pass in the light's diffuse emission
                 gl.uniform3fv(lightSpecularULoc,lightSpecular); // pass in the light's specular emission
                 gl.uniform3fv(lightPositionULoc,lightPosition); // pass in the light's position
+                
+        
             } // end if no shader program link errors
         } // end if no compile errors
     } // end try 
@@ -665,6 +671,8 @@ function renderModels() {
     window.requestAnimationFrame(renderModels); // set up frame render callback
     
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear frame/depth buffers
+    gl.disable(gl.BLEND);
+    
     
     
     // set up projection and view
@@ -679,9 +687,13 @@ function renderModels() {
 
     // render each triangle set
     var currSet; // the tri set and its material properties
-    for (var whichTriSet=0; whichTriSet<numTriangleSets; whichTriSet++) {
+    for (var whichTriSet=2; whichTriSet>=0; whichTriSet--) {
         currSet = inputTriangles[whichTriSet];
-        
+
+        if (currSet.material.alpha <1.0)
+            gl.depthMask(false);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
         gl.activeTexture(gl.TEXTURE0);
 
